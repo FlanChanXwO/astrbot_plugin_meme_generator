@@ -92,6 +92,19 @@ body {
 .page-marker { display: flex; align-items: center; justify-content: space-between; padding: 13px 26px; color: #fff; background: var(--ink); }
 .page-marker span { color: var(--coral); font: 900 12px Consolas, monospace; letter-spacing: .12em; }.page-marker p { margin: 0; color: #b9bab3; font-size: 12px; }
 .catalog-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 26px; background: #dfdbd0; }
+.list-dense .list-head-dense { min-height: 180px; padding: 28px 36px; }
+.list-dense .list-head-dense .brand-mark { width: 84px; height: 84px; }
+.list-dense .list-head-dense .brand-mark svg { width: 48px; height: 48px; }
+.list-dense .list-head-dense .mast-copy h1 { font-size: 38px; margin-bottom: 6px; }
+.list-dense .list-head-dense .mast-copy p { font-size: 15px; }
+.list-dense .list-head-dense .edition strong { margin: 4px 0 10px; font-size: 22px; }
+.list-dense .catalog-summary { padding: 16px 28px; }
+.list-dense .catalog-grid { grid-template-columns: repeat(6, 1fr); gap: 8px; padding: 18px; }
+.list-dense .template-card { min-height: 96px; padding: 12px; box-shadow: 2px 2px 0 var(--ink); }
+.list-dense .template-card h2 { margin: 10px 0 4px; font-size: 15px; }
+.list-dense .template-card p { font-size: 11px; line-height: 1.35; }
+.list-dense .template-card small { font-size: 9px; padding-top: 5px; }
+.list-dense .footer-note { min-height: 56px; padding: 12px 36px; }
 .template-card { min-height: 132px; padding: 16px; display: flex; flex-direction: column; background: var(--sheet); border: 1px solid var(--ink); box-shadow: 3px 3px 0 var(--ink); overflow: hidden; }
 .template-meta { display: flex; justify-content: space-between; font: 800 10px Consolas, monospace; color: var(--muted); }.template-meta em { color: #477e00; font-style: normal; }
 .template-card h2 { margin: 15px 0 6px; font-size: 17px; line-height: 1.2; overflow-wrap: anywhere; }.template-card p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.45; overflow-wrap: anywhere; }

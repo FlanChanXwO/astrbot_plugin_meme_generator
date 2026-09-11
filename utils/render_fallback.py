@@ -98,8 +98,7 @@ def format_template_list_text(template_data: dict[str, Any]) -> str:
         "表情模板库",
         (
             f"模板 {template_data.get('total_templates', 0)} 个 | "
-            f"关键词 {template_data.get('total_keywords', 0)} 个 | "
-            f"第 {template_data.get('current_page', 1)}/{template_data.get('total_pages', 1)} 页"
+            f"关键词 {template_data.get('total_keywords', 0)} 个"
         ),
         "",
     ]

@@ -349,8 +349,6 @@ _metadata = load_metadata_from_yaml()
     _metadata.get("repo"),
 )
 class MemeGeneratorPlugin(Star):
-    TEMPLATE_PAGE_SIZE = 48
-
     def __init__(self, context: Context, config: AstrBotConfig):
         super().__init__(context)
 
@@ -436,11 +434,7 @@ class MemeGeneratorPlugin(Star):
         )
 
     @filter.command("表情列表", alias={"meme列表"})
-    async def template_list(
-            self,
-            event: AstrMessageEvent,
-            page: int | None = 1,
-    ):
+    async def template_list(self, event: AstrMessageEvent):
         """查看所有可用的表情包模板"""
         # 检查插件是否启用
         if not self.meme_config.is_plugin_enabled():
@@ -450,12 +444,12 @@ class MemeGeneratorPlugin(Star):
 
         memes = await self.meme_manager.template_manager.get_all_memes()
         disabled = set(self.meme_config.disabled_templates)
-        all_templates = []
+        templates = []
         for index, meme in enumerate(memes, 1):
             keywords = list(meme.info.keywords)
             display_name = keywords[0] if keywords else meme.key
             aliases = keywords[1:5]
-            all_templates.append({
+            templates.append({
                 "index": index,
                 "key": meme.key,
                 "display_name": display_name,
@@ -464,30 +458,11 @@ class MemeGeneratorPlugin(Star):
                 "disabled": meme.key in disabled or bool(disabled.intersection(keywords)),
             })
 
-        total_pages = max(
-            1,
-            (len(all_templates) + self.TEMPLATE_PAGE_SIZE - 1)
-            // self.TEMPLATE_PAGE_SIZE,
-        )
-        try:
-            current_page = int(page or 1)
-        except (TypeError, ValueError):
-            yield event.plain_result(f"页码无效，请输入 1-{total_pages} 之间的数字")
-            return
-        if not 1 <= current_page <= total_pages:
-            yield event.plain_result(f"页码超出范围，当前共 {total_pages} 页")
-            return
-
-        start = (current_page - 1) * self.TEMPLATE_PAGE_SIZE
-        templates = all_templates[start:start + self.TEMPLATE_PAGE_SIZE]
-
         template_data: dict[str, object] = {
             "templates": templates,
-            "total_templates": len(all_templates),
-            "total_keywords": sum(item["keyword_count"] for item in all_templates),
-            "disabled_templates_count": sum(item["disabled"] for item in all_templates),
-            "current_page": current_page,
-            "total_pages": total_pages,
+            "total_templates": len(templates),
+            "total_keywords": sum(item["keyword_count"] for item in templates),
+            "disabled_templates_count": sum(item["disabled"] for item in templates),
             "version": _metadata.get("version"),
         }
         fallback_text = format_template_list_text(template_data)
