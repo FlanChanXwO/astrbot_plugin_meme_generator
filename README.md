@@ -46,7 +46,7 @@
 
 ```bash
 cd AstrBot/data/plugins
-git clone https://github.com/SodaSizzle/astrbot_plugin_meme_generator
+git clone https://github.com/FlanChanXwO/astrbot_plugin_meme_generator
 pip install -r astrbot_plugin_meme_generator/requirements.txt
 ```
 
@@ -123,7 +123,7 @@ AstrBot/
 
 Windows、Linux 和 Docker 均使用 AstrBot 分配的插件数据目录保存资源和头像缓存。新资源完整后，会清理旧的 `~/.meme_generator/resources/`；其他旧配置文件不会被删除。
 
-自动下载失败时，可以从 [Releases](https://github.com/SodaSizzle/astrbot_plugin_meme_generator/releases) 下载资源包，并将完整的 `resources/` 解压到上述插件数据目录。
+自动下载失败时，可以从 [Releases](https://github.com/FlanChanXwO/astrbot_plugin_meme_generator/releases) 下载资源包，并将完整的 `resources/` 解压到上述插件数据目录。
 
 ### Linux / Docker 字体
 
