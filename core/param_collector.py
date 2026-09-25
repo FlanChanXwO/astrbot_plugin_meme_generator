@@ -17,11 +17,16 @@ except Exception:  # pragma: no cover - fallback for older AstrBot versions
     extract_quoted_message_images = None
 
 
+class BlacklistedTargetError(RuntimeError):
+    """Raised internally when a protected user is selected as a meme target."""
+
+
 class ParamCollector:
     """参数收集器"""
 
-    def __init__(self, network_utils=None):
+    def __init__(self, network_utils, config):
         self.network_utils = network_utils
+        self.config = config
 
     async def collect_params(
             self,
@@ -266,6 +271,8 @@ class ParamCollector:
         # 机器人的 QQ 号时，表达的是明确的头像选择，必须允许使用。
         if (ignore_self and qq == self_id) or qq in target_ids:
             return
+        if self.config.is_blacklisted(uid=qq):
+            raise BlacklistedTargetError
 
         target_ids.append(qq)
         nickname = qq

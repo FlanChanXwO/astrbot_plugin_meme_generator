@@ -4,7 +4,7 @@
 
 # AstrBot 表情包生成插件
 
-**v2.3.2 · 关键词触发 · QQ 头像 · 单页模板目录**
+**v2.3.3 · 关键词触发 · QQ 头像 · 用户黑名单 · 单页模板目录**
 
 基于 [meme-generator-rs](https://github.com/MemeCrafters/meme-generator-rs) 的 AstrBot 表情包插件。
 
@@ -15,9 +15,10 @@
 - 发送模板关键词即可生成表情包。
 - 支持 `@用户`、QQ 号、图片、文本和引用消息。
 - 支持触发前缀、生成冷却、头像缓存和生成超时配置。
+- 支持按用户 UID 或完整 UMO 配置黑名单；命中后静默忽略生成请求。
 - 管理员可以禁用单个模板或停用整个插件。
 - QQ 群：`771954725`
-- 问题反馈：[GitHub Issues](https://github.com/SodaSizzle/astrbot_plugin_meme_generator/issues)
+- 问题反馈：[GitHub Issues](https://github.com/FlanChanXwO/astrbot_plugin_meme_generator/issues)
 
 
 如果这个插件对你有帮助，欢迎点一个 Star。
@@ -145,6 +146,15 @@ fc-cache -fv
 | `enable_avatar_cache` | `bool` | `true` | 是否缓存 QQ 头像 |
 | `cache_expire_hours` | `int` | `24` | 头像缓存有效期，范围 1–168 小时 |
 | `disabled_templates` | `list` | `[]` | 被管理员禁用的模板列表 |
+| `user_blacklist` | `list` | `[]` | 用户 UID 或完整 UMO 黑名单；命中发送者、会话或头像目标时静默忽略生成 |
+
+OneBot / aiocqhttp 可直接填写 QQ 号作为 UID，例如：
+
+```text
+3085974225
+```
+
+填写完整 UMO 时会按对应会话匹配，例如 `aiocqhttp:FriendMessage:3085974225`。群聊 UMO 表示整个群会话；如果只需要保护某个群成员，应填写该成员的 UID/QQ 号。
 
 ## 外部模板
 

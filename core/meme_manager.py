@@ -9,7 +9,7 @@ from astrbot.api import logger
 from astrbot.core.platform import AstrMessageEvent
 
 from .template_manager import TemplateManager
-from .param_collector import ParamCollector
+from .param_collector import BlacklistedTargetError, ParamCollector
 from .image_generator import ImageGenerator
 from ..utils.image_utils import ImageUtils
 from ..utils.cooldown_manager import CooldownManager
@@ -55,7 +55,7 @@ class MemeManager:
         )
 
         # 初始化参数收集器（传入网络工具）
-        self.param_collector = ParamCollector(self.network_utils)
+        self.param_collector = ParamCollector(self.network_utils, config)
 
         # 初始化资源检查（固定启用）
         logger.info("🎭 表情包插件正在初始化...")
@@ -218,8 +218,14 @@ class MemeManager:
         Returns:
             生成的表情包图片字节数据，失败返回None
         """
-        # 检查用户冷却
         user_id = event.get_sender_id()
+        if self.config.is_blacklisted(
+            uid=user_id,
+            umo=event.unified_msg_origin,
+        ):
+            return None
+
+        # 检查用户冷却
         if self.cooldown_manager.is_user_in_cooldown(user_id):
             # 用户在冷却期内，静默返回
             return None
@@ -250,12 +256,15 @@ class MemeManager:
             return None
         
         # 收集生成参数
-        meme_images, texts, options = await self.param_collector.collect_params(
-            event,
-            keyword,
-            meme,
-            keyword_prefix=self.config.trigger_prefix,
-        )
+        try:
+            meme_images, texts, options = await self.param_collector.collect_params(
+                event,
+                keyword,
+                meme,
+                keyword_prefix=self.config.trigger_prefix,
+            )
+        except BlacklistedTargetError:
+            return None
         
         # 生成表情包
         image: bytes = await self.image_generator.generate_image(
