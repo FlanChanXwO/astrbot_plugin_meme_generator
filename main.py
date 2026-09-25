@@ -95,6 +95,11 @@ class MemeConfig:
         self.enable_avatar_cache: bool = self.config.get("enable_avatar_cache", True)
         self.cache_expire_hours: int = self.config.get("cache_expire_hours", 24)
         self.disabled_templates: list[str] = self.config.get("disabled_templates", [])
+        self.user_blacklist: list[str] = [
+            str(item).strip()
+            for item in self.config.get("user_blacklist", [])
+            if str(item).strip()
+        ]
 
     def _save_specific_config(self, key: str, value):
         """保存特定配置项的专用方法"""
@@ -103,6 +108,12 @@ class MemeConfig:
 
     def is_template_disabled(self, template_name: str) -> bool:
         return template_name in self.disabled_templates
+
+    def is_blacklisted(self, uid: str = "", umo: str = "") -> bool:
+        return any(
+            value and value in self.user_blacklist
+            for value in (str(uid).strip(), str(umo).strip())
+        )
 
     def disable_template(self, template_name: str) -> bool:
         if template_name not in self.disabled_templates:
