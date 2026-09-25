@@ -148,3 +148,32 @@ async def test_generate_meme_silently_ignores_blacklisted_avatar_target(
     )
 
     assert result is None
+
+
+@pytest.mark.asyncio
+async def test_generate_meme_silently_ignores_blacklisted_reply_sender() -> None:
+    manager = MemeManager.__new__(MemeManager)
+    manager.config = MemeConfig(DummyConfig({"user_blacklist": ["3085974225"]}))
+    manager.cooldown_manager = DummyCooldownManager()
+    manager.template_manager = DummyTemplateManager()
+    manager.resource_status = DummyResourceStatus()
+    manager.param_collector = ParamCollector(network_utils=None, config=manager.config)
+    manager.image_generator = DummyImageGenerator()
+
+    result = await manager.generate_meme(
+        DummyEvent(
+            "10001",
+            "aiocqhttp:GroupMessage:20002",
+            messages=[
+                Comp.Reply(
+                    id="123",
+                    sender_id="3085974225",
+                    sender_nickname="protected",
+                    chain=[Comp.Plain("quoted")],
+                )
+            ],
+            message_str="摸头",
+        )
+    )
+
+    assert result is None
