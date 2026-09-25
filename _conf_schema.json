@@ -48,9 +48,9 @@
         "default": []
     },
     "user_blacklist": {
-        "description": "用户黑名单",
+        "description": "用户保护名单",
         "type": "list",
-        "hint": "支持填写用户 UID 或完整 UMO。命中发送者、会话或被指定为头像目标的用户时，将静默忽略本次表情包生成。OneBot 可直接填写 QQ 号，例如 3085974225",
+        "hint": "支持填写用户 UID 或完整 UMO。UID 仅保护该用户不被作为表情包头像或引用素材，不影响其发起生成；完整 UMO 用于静默屏蔽对应会话。OneBot 可直接填写 QQ 号，例如 3085974225",
         "default": []
     }
 }
