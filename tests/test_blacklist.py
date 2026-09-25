@@ -32,6 +32,9 @@ class DummyEvent:
     def get_sender_name(self) -> str:
         return "sender"
 
+    def get_platform_name(self) -> str:
+        return "test"
+
 
 class DummyCooldownManager:
     def is_user_in_cooldown(self, _uid: str) -> bool:
@@ -39,6 +42,11 @@ class DummyCooldownManager:
 
     def record_user_use(self, _uid: str) -> None:
         raise AssertionError("blacklisted target must not record cooldown usage")
+
+
+class SuccessfulCooldownManager(DummyCooldownManager):
+    def record_user_use(self, _uid: str) -> None:
+        pass
 
 
 class DummyParams:
@@ -74,6 +82,15 @@ class DummyImageGenerator:
         return b"generated"
 
 
+class TrackingNetworkUtils:
+    def __init__(self):
+        self.avatar_requests = []
+
+    async def get_avatar(self, uid: str):
+        self.avatar_requests.append(uid)
+        return b"avatar"
+
+
 def test_blacklist_matches_uid_and_umo() -> None:
     config = MemeConfig(
         DummyConfig(
@@ -94,25 +111,18 @@ def test_blacklist_matches_uid_and_umo() -> None:
 
 
 @pytest.mark.asyncio
-async def test_generate_meme_silently_ignores_blacklisted_sender_or_umo() -> None:
+async def test_generate_meme_silently_ignores_blacklisted_umo() -> None:
     manager = MemeManager.__new__(MemeManager)
     manager.config = MemeConfig(
         DummyConfig(
             {
                 "user_blacklist": [
-                    "3085974225",
                     "aiocqhttp:GroupMessage:20002",
                 ]
             }
         )
     )
 
-    assert (
-        await manager.generate_meme(
-            DummyEvent("3085974225", "aiocqhttp:GroupMessage:10001")
-        )
-        is None
-    )
     assert (
         await manager.generate_meme(DummyEvent("10001", "aiocqhttp:GroupMessage:20002"))
         is None
@@ -177,3 +187,52 @@ async def test_generate_meme_silently_ignores_blacklisted_reply_sender() -> None
     )
 
     assert result is None
+
+
+@pytest.mark.asyncio
+async def test_protected_user_can_generate_meme_for_another_user() -> None:
+    manager = MemeManager.__new__(MemeManager)
+    manager.config = MemeConfig(DummyConfig({"user_blacklist": ["3085974225"]}))
+    manager.cooldown_manager = SuccessfulCooldownManager()
+    manager.template_manager = DummyTemplateManager()
+    manager.resource_status = DummyResourceStatus()
+    manager.param_collector = ParamCollector(network_utils=None, config=manager.config)
+    manager.image_generator = DummyImageGenerator()
+
+    result = await manager.generate_meme(
+        DummyEvent(
+            "3085974225",
+            "aiocqhttp:GroupMessage:20002",
+            messages=[Comp.At(qq="10001")],
+            message_str="摸头",
+        )
+    )
+
+    assert result == b"generated"
+
+
+@pytest.mark.asyncio
+async def test_protected_user_avatar_is_not_used_as_default_material() -> None:
+    network_utils = TrackingNetworkUtils()
+    manager = MemeManager.__new__(MemeManager)
+    manager.config = MemeConfig(DummyConfig({"user_blacklist": ["3085974225"]}))
+    manager.cooldown_manager = SuccessfulCooldownManager()
+    manager.template_manager = DummyTemplateManager()
+    manager.resource_status = DummyResourceStatus()
+    manager.param_collector = ParamCollector(
+        network_utils=network_utils,
+        config=manager.config,
+    )
+    manager.image_generator = DummyImageGenerator()
+
+    result = await manager.generate_meme(
+        DummyEvent(
+            "3085974225",
+            "aiocqhttp:GroupMessage:20002",
+            messages=[],
+            message_str="摸头",
+        )
+    )
+
+    assert result == b"generated"
+    assert "3085974225" not in network_utils.avatar_requests

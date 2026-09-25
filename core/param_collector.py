@@ -295,7 +295,11 @@ class ParamCollector:
             max_images: int
     ):
         """自动补全图片参数"""
-        if self.network_utils and len(meme_images) < max_images:
+        if (
+            self.network_utils
+            and len(meme_images) < max_images
+            and not self.config.is_blacklisted(uid=send_id)
+        ):
             if use_avatar := await self.network_utils.get_avatar(send_id):
                 meme_images.insert(0, MemeImage(sender_name, use_avatar))
         if self.network_utils and len(meme_images) < max_images:

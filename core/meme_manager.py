@@ -219,10 +219,7 @@ class MemeManager:
             生成的表情包图片字节数据，失败返回None
         """
         user_id = event.get_sender_id()
-        if self.config.is_blacklisted(
-            uid=user_id,
-            umo=event.unified_msg_origin,
-        ):
+        if self.config.is_blacklisted(umo=event.unified_msg_origin):
             return None
 
         # 检查用户冷却
