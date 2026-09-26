@@ -133,7 +133,11 @@ class ParamCollector:
         """处理引用消息内容，必要时回退到引用消息提取器。"""
         if not reply_seg:
             return
-        if self.config.is_blacklisted(uid=str(reply_seg.sender_id or "")):
+        reply_sender_id = str(reply_seg.sender_id or "")
+        if (
+            reply_sender_id != event.get_sender_id()
+            and self.config.is_blacklisted(uid=reply_sender_id)
+        ):
             raise BlacklistedTargetError
 
         reply_image_count = len(meme_images)
