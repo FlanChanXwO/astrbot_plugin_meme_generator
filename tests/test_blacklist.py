@@ -236,3 +236,32 @@ async def test_protected_user_avatar_is_not_used_as_default_material() -> None:
 
     assert result == b"generated"
     assert "3085974225" not in network_utils.avatar_requests
+
+
+@pytest.mark.asyncio
+async def test_protected_user_can_use_own_quoted_image() -> None:
+    manager = MemeManager.__new__(MemeManager)
+    manager.config = MemeConfig(DummyConfig({"user_blacklist": ["3085974225"]}))
+    manager.cooldown_manager = SuccessfulCooldownManager()
+    manager.template_manager = DummyTemplateManager()
+    manager.resource_status = DummyResourceStatus()
+    manager.param_collector = ParamCollector(network_utils=None, config=manager.config)
+    manager.image_generator = DummyImageGenerator()
+
+    result = await manager.generate_meme(
+        DummyEvent(
+            "3085974225",
+            "aiocqhttp:GroupMessage:20002",
+            messages=[
+                Comp.Reply(
+                    id="123",
+                    sender_id="3085974225",
+                    sender_nickname="protected",
+                    chain=[Comp.Image.fromBytes(b"quoted-image")],
+                )
+            ],
+            message_str="摸头",
+        )
+    )
+
+    assert result == b"generated"
